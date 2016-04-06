@@ -1,0 +1,99 @@
+---
+title: "problema 2"
+output: html_document
+---
+## Problema 2.1
+
+```{r,echo=FALSE}
+
+  if(! require(e1071))
+  {
+    install.packages("e1071")
+  }
+  if(! require(highcharter))
+  {
+    install.packages("highcharter")
+  }
+  
+  require(e1071)
+  require(highcharter)
+
+```
+
+```{r,echo=FALSE}
+uspsdata <- read.delim("~/IGOR/Pessoal/ML/hw2 problema 2/uspsdata.txt", header=FALSE)
+
+uspscl <- read.table("~/IGOR/Pessoal/ML/hw2 problema 2/uspscl.txt", quote="\"", comment.char="")
+
+```
+
+``` {r}
+i <- 1:length(uspscl[,1]) #Vetor para sortear quais observações vão para os dados de teste
+
+test_samp <- sample(i,length(i)/5) #sorteando
+
+teste <- uspsdata[test_samp,] #dados de teste
+
+treino <- uspsdata[-test_samp,] #dados de treino
+
+#classe e matriz de treino
+
+classe <- uspscl[-test_samp,1]
+
+matriz <- as.matrix(treino)
+
+#classe e matriz de teste
+
+classe_teste <- uspscl[test_samp,1]
+
+matriz_teste <- as.matrix(teste)
+
+
+```
+
+### aplicando o modelo em vários custos diferentes
+
+```{r}
+#aplicação do modelo com margem suave
+z <- seq(0.001, 100, .07)
+n <- length(z)
+y <- rep(0, n)
+ for (i in 1:n) {
+  modelo <- svm(matriz, classe, cross = 5, type = "C-classification",
+                kernel = "linear", cost = z[i])
+
+  y[i] <- (100 - modelo$tot.accuracy) / 100
+
+ }
+```
+
+### computando a taxa de má-classificação para a aplicação do modelo nos dados de teste
+
+```{r}
+custo <- z[which(y==min(y))][1]
+
+modelo <- svm(matriz_teste, classe_teste, cross = 5, type = "C-classification", kernel = "linear", cost = custo)
+
+pred <- predict(modelo, matriz_teste)
+
+x<-length(which(pred!=classe_teste))/40
+
+```
+
+```{r,echo=FALSE}
+table(pred=pred, true = classe_teste)
+
+cat("A taxa de má-classificação para o teste é de:",x*100,"%")
+
+```
+
+### Questão A) Gráfico da função do erro em relação ao custo
+
+``` {r,echo = FALSE}
+hc <- highchart() %>% 
+  hc_xAxis(categories=z, title = list(text = "Custo")) %>% 
+  hc_add_serie(name = "erro", data = y) %>% 
+  hc_yAxis(title = list(text = "erro")) %>% 
+  hc_title(text = "Taxa de erro por validação cruzada k-fold por custo")
+hc
+```
