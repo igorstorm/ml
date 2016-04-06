@@ -1,0 +1,36 @@
+---
+title: "problema 0"
+output: html_document
+---
+
+## Problema 0.1
+
+```{r}
+v <- rep(1/sqrt(2),2)
+c <- 1/(2*sqrt(2))
+x1 <- c(-3,0)
+x2 <-rep(0.5,2)
+
+z <- c(v,-c) 
+
+classify <- function(x,z) {
+  x <- c(x,1)
+  classe <- sign(x %*% z)
+  classe1 <- as.numeric(classe)
+  cat("A classe do vetor inserido é:", classe1)
+}
+
+classify(x1,z)
+
+classify(x2,z)
+```
+
+## Problema 0.2
+
+### Dado que o classificador foi treinado como um SVM de margem 1, os resultados de classificação para cada vetor não mudam porque o conceito de margem é aplicado somente para a fase de treinamento, como estamos supondo que este vetor já está treinado, a classe não mudará.
+
+## Problema 0.3
+
+### Pela definição de achar um classificador: selecionar um classificador f dentro de todo o conjunto de possíveis classificadores que minimiza o Risco, com função perda 0-1, mais formal: f pertencente ao conjunto H (espaço de hipóteses, conjunto de todos possíveis classificadores) que minimiza o argumento da função risco que depende de f. 
+### Nós aproximamos esta função risco com os dados, que é minimizar o risco empiricamente, o problema é que este risco empiríco é constante por partes, ou seja é descontínua, logo a taxa de erro não é adequada para optimização númerica, então nós usamos uma função que é linear por partes, a chamada função de custo perceptron. 
+
